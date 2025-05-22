@@ -75,7 +75,7 @@ public class PointController {
 
         long currentPoint = userPointTable.selectById(id).point();
 
-        if (currentPoint <= amount) {
+        if (currentPoint < amount) {
             throw new IllegalArgumentException(ErrorMessages.INSUFFICIENT_POINTS);
         }
         if (amount <= 0) {
