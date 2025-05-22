@@ -1,5 +1,6 @@
 package io.hhplus.tdd.point;
 
+import io.hhplus.tdd.ErrorMessages;
 import io.hhplus.tdd.database.PointHistoryTable;
 import io.hhplus.tdd.database.UserPointTable;
 import org.slf4j.Logger;
@@ -55,7 +56,7 @@ public class PointController {
         log.info("amount: {}", amount);
 
         if (amount < 0) {
-            throw new IllegalArgumentException("충전할 포인트는 0보다 커야 합니다.");
+            throw new IllegalArgumentException(ErrorMessages.CHARGE_AMOUNT_POSITIVE);
         }
 
         UserPoint userPoint = userPointTable.insertOrUpdate(id, amount);
@@ -75,10 +76,10 @@ public class PointController {
         long currentPoint = userPointTable.selectById(id).point();
 
         if (currentPoint <= amount) {
-            throw new IllegalArgumentException("포인트가 부족합니다.");
+            throw new IllegalArgumentException(ErrorMessages.INSUFFICIENT_POINTS);
         }
         if (amount <= 0) {
-            throw new IllegalArgumentException("사용할 포인트는 0보다 커야 합니다.");
+            throw new IllegalArgumentException(ErrorMessages.USE_AMOUNT_POSITIVE);
         }
 
         UserPoint userPoint = userPointTable.insertOrUpdate(id, -amount);

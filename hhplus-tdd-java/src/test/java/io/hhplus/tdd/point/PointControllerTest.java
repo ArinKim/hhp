@@ -1,5 +1,6 @@
 package io.hhplus.tdd.point;
 
+import io.hhplus.tdd.ErrorMessages;
 import io.hhplus.tdd.database.PointHistoryTable;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +35,7 @@ public class PointControllerTest {
         assertThatThrownBy(() -> {
             pointController.charge(testId, testPoint);
         }).isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("충전할 포인트는 0보다 커야 합니다.");
+          .hasMessageContaining(ErrorMessages.CHARGE_AMOUNT_POSITIVE);
     }
 
     @Test
@@ -71,7 +72,7 @@ public class PointControllerTest {
         assertThatThrownBy(() -> {
             pointController.use(testId, useAmount);
         }).isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("포인트가 부족합니다.");
+          .hasMessageContaining(ErrorMessages.INSUFFICIENT_POINTS);
     }
 
     @Test
@@ -88,6 +89,6 @@ public class PointControllerTest {
         assertThatThrownBy(() -> {
             pointController.use(testId, useAmount);
         }).isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("사용할 포인트는 0보다 커야 합니다.");
+          .hasMessageContaining(ErrorMessages.USE_AMOUNT_POSITIVE);
     }
 }
