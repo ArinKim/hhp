@@ -91,4 +91,37 @@ public class PointControllerTest {
         }).isInstanceOf(IllegalArgumentException.class)
           .hasMessageContaining(ErrorMessages.USE_AMOUNT_POSITIVE);
     }
+
+    @Test
+    public void PointHistory_insertSuccessForCharge() {
+        // given
+        long testId = 1L;
+        long amount = 100L;
+        TransactionType transactionType = TransactionType.CHARGE;
+
+        // when
+        pointController.charge(testId, amount);
+
+        // then
+        verify(pointHistoryTable).insert(eq(testId), eq(amount), eq(transactionType), anyLong());
+    }
+
+    @Test
+    public void PointHistory_insertSuccessForUse() {
+        // given
+        long testId = 1L;
+        long amount = 100L;
+        long currentPoint = 500L;
+        TransactionType transactionType = TransactionType.USE;
+        UserPoint beforeUse = new UserPoint(testId, currentPoint, System.currentTimeMillis());
+
+        when(userPointTable.selectById(testId)).thenReturn(beforeUse);
+
+        // when
+        pointController.use(testId, amount);
+
+        // then
+        verify(pointHistoryTable).insert(eq(testId), eq(-amount), eq(transactionType), anyLong());
+
+    }
 }
