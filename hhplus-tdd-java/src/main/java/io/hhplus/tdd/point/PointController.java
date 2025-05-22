@@ -40,7 +40,7 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return List.of();
+        return pointHistoryTable.selectAllByUserId(id);
     }
 
     /**
@@ -71,6 +71,18 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+
+        long currentPoint = userPointTable.selectById(id).point();
+
+        if (currentPoint <= amount) {
+            throw new IllegalArgumentException("포인트가 부족합니다.");
+        }
+        if (amount <= 0) {
+            throw new IllegalArgumentException("사용할 포인트는 0보다 커야 합니다.");
+        }
+
+        UserPoint userPoint = userPointTable.insertOrUpdate(id, -amount);
+        pointHistoryTable.insert(id, -amount, TransactionType.USE, System.currentTimeMillis());
+        return userPoint;
     }
 }
