@@ -1,0 +1,53 @@
+package io.hhplus.tdd.point;
+
+import io.hhplus.tdd.database.PointHistoryTable;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import io.hhplus.tdd.database.UserPointTable;
+import org.junit.jupiter.api.BeforeEach;
+
+public class PointControllerTest {
+
+    private PointController pointController;
+    private UserPointTable userPointTable;
+    private PointHistoryTable pointHistoryTable;
+
+    @BeforeEach
+    void setUp() {
+        // Create mock for UserPointTable
+        userPointTable = mock(UserPointTable.class);
+        pointHistoryTable = mock(PointHistoryTable.class);
+        // Initialize PointController with the mock
+        pointController = new PointController(userPointTable, pointHistoryTable);
+    }
+
+    @Test
+    public void UserPoint_isNotNull() {
+        // given
+        long testId = 1L;
+        UserPoint expectedPoint = new UserPoint(testId, 0, System.currentTimeMillis());
+        when(userPointTable.selectById(testId)).thenReturn(expectedPoint);
+
+        // when
+        UserPoint result = pointController.point(testId);
+
+        // then
+        assertNotNull(result, "UserPoint should not be null");
+    }
+
+    @Test
+    // Test to check if the point is 0 when accidentally assigned negative value for the point
+    public void UserPoint_cannotBeNegative() {
+        // given
+        long testId = 1L;
+        int testPoint = -100; //insertOrUpdate
+
+        assertThatThrownBy(() -> {
+            pointController.charge(testId, testPoint);
+        }).isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("충전할 포인트는 0보다 커야 합니다.");
+    }
+}

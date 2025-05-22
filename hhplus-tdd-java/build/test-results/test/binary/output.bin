@@ -1,0 +1,2 @@
+R07:12:40.486 [Test worker] INFO io.hhplus.tdd.point.PointController -- user id: 1
+T07:12:40.497 [Test worker] INFO io.hhplus.tdd.point.PointController -- amount: -100
