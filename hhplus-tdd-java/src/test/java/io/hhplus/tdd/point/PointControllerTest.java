@@ -25,20 +25,6 @@ public class PointControllerTest {
     }
 
     @Test
-    public void UserPoint_isNotNull() {
-        // given
-        long testId = 1L;
-        UserPoint expectedPoint = new UserPoint(testId, 0, System.currentTimeMillis());
-        when(userPointTable.selectById(testId)).thenReturn(expectedPoint);
-
-        // when
-        UserPoint result = pointController.point(testId);
-
-        // then
-        assertNotNull(result, "UserPoint should not be null");
-    }
-
-    @Test
     // Test to check if the point is 0 when accidentally assigned negative value for the point
     public void UserPoint_cannotBeNegative() {
         // given
@@ -49,5 +35,59 @@ public class PointControllerTest {
             pointController.charge(testId, testPoint);
         }).isInstanceOf(IllegalArgumentException.class)
           .hasMessageContaining("충전할 포인트는 0보다 커야 합니다.");
+    }
+
+    @Test
+    public void UserPoint_useSuccess() {
+        // given
+        long testId = 1L;
+        long currentPoint = 500L;
+        long useAmount = 200L;
+        UserPoint beforeUse = new UserPoint(testId, currentPoint, System.currentTimeMillis());
+        UserPoint afterUse = new UserPoint(testId, currentPoint - useAmount, System.currentTimeMillis());
+
+        when(userPointTable.selectById(testId)).thenReturn(beforeUse);
+        when(userPointTable.insertOrUpdate(testId, -useAmount)).thenReturn(afterUse);
+
+        // when
+        UserPoint result = pointController.use(testId, useAmount);
+
+        // then
+        assertNotNull(result);
+        assertEquals(currentPoint - useAmount, result.point());
+    }
+
+    @Test
+    public void UserPoint_useFail() {
+        // given
+        long testId = 1L;
+        long currentPoint = 500L;
+        long useAmount = 600L; // More than current point
+        UserPoint beforeUse = new UserPoint(testId, currentPoint, System.currentTimeMillis());
+
+        when(userPointTable.selectById(testId)).thenReturn(beforeUse);
+
+        // when
+        assertThatThrownBy(() -> {
+            pointController.use(testId, useAmount);
+        }).isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("포인트가 부족합니다.");
+    }
+
+    @Test
+    public void UserPoint_useZeroPointFail() {
+        // given
+        long testId = 1L;
+        long currentPoint = 500L;
+        long useAmount = 0L; // Using zero points
+        UserPoint beforeUse = new UserPoint(testId, currentPoint, System.currentTimeMillis());
+
+        when(userPointTable.selectById(testId)).thenReturn(beforeUse);
+
+        // when
+        assertThatThrownBy(() -> {
+            pointController.use(testId, useAmount);
+        }).isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("사용할 포인트는 0보다 커야 합니다.");
     }
 }
