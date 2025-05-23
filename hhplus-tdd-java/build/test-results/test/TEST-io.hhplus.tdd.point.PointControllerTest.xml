@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.hhplus.tdd.point.PointControllerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-05-21T21:12:39" hostname="Arins-MacBook-Pro.local" time="1.261">
+  <properties/>
+  <testcase name="UserPoint_cannotBeNegative()" classname="io.hhplus.tdd.point.PointControllerTest" time="1.261"/>
+  <system-out><![CDATA[07:12:40.486 [Test worker] INFO io.hhplus.tdd.point.PointController -- user id: 1
+07:12:40.497 [Test worker] INFO io.hhplus.tdd.point.PointController -- amount: -100
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
