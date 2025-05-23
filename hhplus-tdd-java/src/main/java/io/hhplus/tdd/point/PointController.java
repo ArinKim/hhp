@@ -5,6 +5,7 @@ import io.hhplus.tdd.database.PointHistoryTable;
 import io.hhplus.tdd.database.UserPointTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,14 +15,11 @@ import java.util.List;
 public class PointController {
 
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
-    private final UserPointTable userPointTable;
-    private final PointHistoryTable pointHistoryTable;
+    private final PointService pointService;
 
-    public PointController(UserPointTable userPointTable, PointHistoryTable pointHistoryTable) {
-        this.userPointTable = userPointTable;
-        this.pointHistoryTable = pointHistoryTable;
+    public PointController(PointService pointService) {
+        this.pointService = pointService;
     }
-
     /**
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
      */
@@ -30,8 +28,7 @@ public class PointController {
             @PathVariable long id
     ) {
         log.info("user id: {}", id);
-
-        return userPointTable.selectById(id);
+        return pointService.point(id);
     }
 
     /**
@@ -41,7 +38,7 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return pointHistoryTable.selectAllByUserId(id);
+        return pointService.history(id);
     }
 
     /**
@@ -52,16 +49,7 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        log.info("user id: {}", id);
-        log.info("amount: {}", amount);
-
-        if (amount < 0) {
-            throw new IllegalArgumentException(ErrorMessages.CHARGE_AMOUNT_POSITIVE);
-        }
-
-        UserPoint userPoint = userPointTable.insertOrUpdate(id, amount);
-        pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
-        return userPoint;
+        return pointService.charge(id, amount);
     }
 
     /**
@@ -73,17 +61,6 @@ public class PointController {
             @RequestBody long amount
     ) {
 
-        long currentPoint = userPointTable.selectById(id).point();
-
-        if (currentPoint < amount) {
-            throw new IllegalArgumentException(ErrorMessages.INSUFFICIENT_POINTS);
-        }
-        if (amount <= 0) {
-            throw new IllegalArgumentException(ErrorMessages.USE_AMOUNT_POSITIVE);
-        }
-
-        UserPoint userPoint = userPointTable.insertOrUpdate(id, -amount);
-        pointHistoryTable.insert(id, -amount, TransactionType.USE, System.currentTimeMillis());
-        return userPoint;
+        return pointService.use(id, amount);
     }
 }
